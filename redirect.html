@@ -14,7 +14,6 @@
   <script>
     (async () => {
       try {
-        // 👇 Aquí va tu RAW del Gist
         const JSON_URL = "https://gist.githubusercontent.com/emaelcreativo/10c29536523487b468f1b068209afb52/raw/3e8acc05de0d4ee0bd04d72dc1afd3bf16ee65be/gistfile1.txt";
 
         const res = await fetch(JSON_URL + "?t=" + Date.now(), { cache: "no-store" });
