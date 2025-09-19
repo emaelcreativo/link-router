@@ -3,28 +3,32 @@
 <head>
   <meta charset="utf-8">
   <title>Redirigiendo…</title>
-  <style>body{font-family:sans-serif;text-align:center;padding:3rem}</style>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 3rem; }
+  </style>
 </head>
 <body>
   <h2>🔗 Abriendo la app…</h2>
-  <p>Si no abre automáticamente, <a id="manual" href="#">toca aquí</a>.</p>
+  <p>Si no abre automáticamente, <a id="manual" href="#">haz clic aquí</a>.</p>
+
   <script>
     (async () => {
-      const JSON_URL = "https://gist.githubusercontent.com/emaelcreativo/10c29536523487b468f1b068209afb52/raw/3e8acc05de0d4ee0bd04d72dc1afd3bf16ee65be/gistfile1.txt"; 
       try {
-        const res = await fetch(JSON_URL + "?t=" + Date.now(), { cache: "no-store" });
+        const res = await fetch("https://gist.githubusercontent.com/emaelcreativo/10c29536523487b468f1b068209afb52/raw/3e8acc05de0d4ee0bd04d72dc1afd3bf16ee65be/gistfile1.txt", { cache: "no-store" });
         const cfg = await res.json();
+        
         const destino = cfg?.destino;
         const fallback = cfg?.fallback || "https://www.rappi.com";
         const manual = document.getElementById("manual");
-        if (!destino) throw new Error("Sin 'destino' en JSON");
+
+        if (!destino) throw new Error("No hay destino en JSON");
+
         manual.href = destino;
-        // intenta abrir la app
         window.location.href = destino;
-        // fallback si no abre
+
         setTimeout(() => { window.location.href = fallback; }, 1200);
-      } catch (e) {
-        console.error(e);
+      } catch (err) {
+        console.error(err);
         window.location.href = "https://www.rappi.com";
       }
     })();
