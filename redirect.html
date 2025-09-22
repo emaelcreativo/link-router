@@ -1,18 +1,76 @@
-<!doctype html><meta charset="utf-8"><title>Redirigiendo…</title>
-<p>Redirigiendo…</p>
-<script>
-(async () => {
-  try {
-    const res = await fetch('https://gist.githubusercontent.com/emaelcreativo/10c29536523487b468f1b068209afb52/raw/c901c7e17e4f71209e2bf1dc7175ee2b78d931e1/gistfile1.txt' + Date.now(), { cache:'no-store' });
-    if (!res.ok) throw new Error('HTTP '+res.status);
-    const cfg = await res.json();
-    const destino = cfg?.destino;
-    const fallback = cfg?.fallback || 'https://www.rappi.com';
-    if (!destino) throw new Error('Sin destino');
-    // abrir destino
-    location.href = destino;
-    // fallback si no abre app
-    setTimeout(()=>location.href=fallback, 1200);
-  } catch(e) { location.href='https://www.rappi.com'; }
-})();
-</script>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Redirigiendo…</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>body{font-family:system-ui,Arial,sans-serif;text-align:center;padding:2.5rem}</style>
+</head>
+<body>
+  <h2>Abriendo la app…</h2>
+  <p>Si no abre, te enviaremos a la opción disponible.</p>
+
+  <script>
+    (async () => {
+      //  JSON de Gist aquí
+      const JSON_URL = "https://emaelcreativo.github.io/link-router/redirect.html";
+
+      // Utilidad
+      const ua = (navigator.userAgent || "").toLowerCase();
+      const isAndroid = ua.includes("android");
+      const isIOS = ua.includes("iphone") || ua.includes("ipad") || ua.includes("ipod");
+      const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+      try {
+        const res = await fetch(JSON_URL + "?t=" + Date.now(), { cache: "no-store" });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const cfg = await res.json();
+
+        // Lee destinos
+        const deepLink = (cfg.destino || "gbrappi://com.grability.rappi?store_type=travel_corp").trim();             
+        const fallbackWeb = (cfg.fallback || "https://rappi.onelink.me/y6GB/53yvhola").trim();
+        const androidPkg = (cfg.android_package || "com.grability.rappi").trim(); // opcional en tu JSON
+        const playStore  = (cfg.android_store || "https://play.google.com/store/apps/details?id=" + androidPkg).trim();
+        const iosStore   = (cfg.ios_store || "https://apps.apple.com").trim();   // pon la URL real si la tienes
+
+        if (!deepLink) throw new Error("JSON sin 'destino'");
+
+        if (isAndroid) {
+          // --- ANDROID: usa Intent URI para abrir directo la app y define fallback de navegador ---
+          // Convierte: scheme://host/path?query  →  intent://host/path?query#Intent;scheme=scheme;package=pkg;S.browser_fallback_url=...;end
+          const parts = deepLink.split("://");
+          const scheme = parts[0];
+          const rest = parts[1] || "";
+
+          const fallbackEncoded = encodeURIComponent(fallbackWeb || playStore);
+          const intentUrl = `intent://${rest}#Intent;scheme=${scheme};package=${androidPkg};S.browser_fallback_url=${fallbackEncoded};end`;
+
+          // Intento 1: abrir con intent://
+          window.location.replace(intentUrl);
+
+          // Plan B: si algo raro pasa, tras ~1s forzar fallback web/Play Store
+          await sleep(1200);
+          window.location.replace(fallbackWeb || playStore);
+          return;
+        }
+
+        if (isIOS) {
+          // --- iOS: abrir esquema directo y fallback a App Store/web ---
+          // iOS no soporta intent:// desde web
+          window.location.href = deepLink;
+          await sleep(1200);
+          window.location.replace(iosStore || fallbackWeb);
+          return;
+        }
+
+        // --- Desktop: enviar al fallback web directamente ---
+        window.location.replace(fallbackWeb);
+
+      } catch (e) {
+        // Si el JSON falla o hay error, vete al web fallback
+        window.location.replace("gbrappi://com.grability.rappi?store_type=travel_corp");
+      }
+    })();
+  </script>
+</body>
+</html>
