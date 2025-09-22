@@ -3,16 +3,20 @@
 <script>
 (async () => {
   try {
-    const res = await fetch('https://gist.githubusercontent.com/emaelcreativo/10c29536523487b468f1b068209afb52/raw/15aa4a8cc78e0b7b88c24a89a9e16e531b62566b/gistfile1.txt' + Date.now(), { cache:'no-store' });
-    if (!res.ok) throw new Error('HTTP '+res.status);
+    const JSON_URL = "https://gist.githubusercontent.com/emaelcreativo/10c29536523487b468f1b068209afb52/raw/15aa4a8cc78e0b7b88c24a89a9e16e531b62566b/gistfile1.txt";
+    const res = await fetch(JSON_URL + "?t=" + Date.now(), { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
     const cfg = await res.json();
+
     const destino = cfg?.destino;
-    const fallback = cfg?.fallback || 'https://www.rappi.com';
-    if (!destino) throw new Error('Sin destino');
-    // abrir destino
-    location.href = destino;
-    // fallback si no abre app
-    setTimeout(()=>location.href=fallback, 1200);
-  } catch(e) { location.href='https://www.rappi.com'; }
+    const fallback = cfg?.fallback || "https://www.rappi.com";
+
+    if (!destino) throw new Error("Sin destino en JSON");
+
+    location.replace(destino); // redirección directa
+    setTimeout(() => location.replace(fallback), 1200);
+  } catch (e) {
+    location.replace("https://www.rappi.com");
+  }
 })();
 </script>
