@@ -3,7 +3,7 @@
 <script>
 (async () => {
   try {
-    const JSON_URL = "https://gist.githubusercontent.com/emaelcreativo/10c29536523487b468f1b068209afb52/raw/15aa4a8cc78e0b7b88c24a89a9e16e531b62566b/gistfile1.txt";
+    const JSON_URL = "https://gist.githubusercontent.com/emaelcreativo/10c29536523487b468f1b068209afb52/raw/321ee72e4b8c63939a1e654df3f4ca97cae316e3/gistfile1.txt";
     const res = await fetch(JSON_URL + "?t=" + Date.now(), { cache: "no-store" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     const cfg = await res.json();
